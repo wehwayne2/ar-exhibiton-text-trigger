@@ -4,9 +4,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    #info {
+      position: absolute;
+      bottom: 500px;
+      width: 100%;
+      text-align: center;
+      font-size: 40px;
+      color: blue;
+      pointer-events: none;/* important */
+    }
+  </style>
 </head>
 
 <body>
+  <div id="info"></div>
+
   <a-scene mindar-image="imageTargetSrc: targets.mind;" color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false" id="scene">
@@ -15,56 +28,30 @@
 
   <script>
     const exhibits = [
-      {
-        targetIndex: 0,
-        title: "Exhibit A — Cat",
-        subtitle: "where is the milk",
-      },
-      {
-        targetIndex: 1,
-        title: "Exhibit B — Cat With Hand",
-        subtitle: "where is the artist",
-      },
-      {
-        targetIndex: 2,
-        title: "Exhibit C — Camel",
-        subtitle: "where is the door",
-      },
-      {
-        targetIndex: 3,
-        title: "Exhibit D — Cool Dog",
-        subtitle: "where is the door",
-      },
+      { targetIndex: 0, title: "Exhibit A — Cat", subtitle: "where is the milk" },
+      { targetIndex: 1, title: "Exhibit B — Cat With Hand", subtitle: "where is the artist" },
+      { targetIndex: 2, title: "Exhibit C — Camel", subtitle: "where is the door" },
+      { targetIndex: 3, title: "Exhibit D — Cool Dog", subtitle: "where is the door" },
     ];
 
-    const scene = document.querySelector("#scene");
+    const info = document.getElementById("info");
+    const scene = document.querySelector("a-scene");
 
-    exhibits.forEach((exhibit) => {
-      const target = document.createElement("a-entity");
-      target.setAttribute(
-        "mindar-image-target",
-        `targetIndex: ${exhibit.targetIndex}`
-      );
+    scene.addEventListener("renderstart", () => {
+      exhibits.forEach((exhibit) => {
+        const targetEl = document.createElement("a-entity");
+        targetEl.setAttribute("mindar-image-target", `targetIndex: ${exhibit.targetIndex}`);
+        scene.appendChild(targetEl);
 
-      const bg = document.createElement("a-plane");
-      bg.setAttribute("color", "#222");
-      bg.setAttribute("width", "1");
-      bg.setAttribute("height", "0.4");
-      bg.setAttribute("position", "0 -0.3 0");
-      target.appendChild(bg);
+        targetEl.addEventListener("targetFound", () => {
+          info.innerHTML = `<strong>${exhibit.title}</strong><br>${exhibit.subtitle}`;
+        });
 
-      const text = document.createElement("a-text");
-      text.setAttribute(
-        "value",
-        `${exhibit.title}\n${exhibit.subtitle}`
-      );
-      text.setAttribute("align", "center");
-      text.setAttribute("color", "#fff");
-      text.setAttribute("width", "2");
-      text.setAttribute("position", "0 -0.25 0.01");
-      target.appendChild(text);
-
-      scene.appendChild(target);
+/*         
+        targetEl.addEventListener("targetLost", () => {
+          info.innerHTML = "";
+        }); */
+      });
     });
   </script>
 </body>
